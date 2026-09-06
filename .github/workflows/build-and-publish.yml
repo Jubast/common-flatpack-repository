@@ -1,0 +1,99 @@
+name: Build and publish Flatpak repository
+
+on:
+  push:
+    branches: [main]
+    paths:
+      - 'apps/**'
+      - '.github/workflows/build-and-publish.yml'
+  workflow_dispatch: {}
+
+concurrency:
+  group: publish-flatpak-repo
+  cancel-in-progress: false
+
+jobs:
+  build-and-publish:
+    runs-on: ubuntu-latest
+    # flatpak-builder shells out directly to flatpak-builder/flatpak/ostree/bwrap and
+    # expects a flathub remote to already exist; a bare ubuntu-latest runner has none
+    # of that, and Ubuntu 24.04's AppArmor userns restrictions break bwrap even if the
+    # binaries were installed manually. Run inside the container image the action's
+    # own docs recommend, tagged to match the manifest's runtime-version ('25.08').
+    container:
+      image: ghcr.io/flathub-infra/flatpak-github-actions:freedesktop-25.08
+      options: --privileged
+    permissions:
+      contents: write
+    steps:
+      - name: Checkout main
+        uses: actions/checkout@11d5960a326750d5838078e36cf38b85af677262 # v4.4.0
+
+      - name: Fetch existing gh-pages content
+        run: |
+          mkdir -p public
+          if git ls-remote --exit-code --heads origin gh-pages > /dev/null 2>&1; then
+            git fetch origin gh-pages
+            git archive origin/gh-pages | tar -x -C public
+          fi
+
+      - name: Build io.github.Cyan4973.xxHash
+        uses: flatpak/flatpak-github-actions/flatpak-builder@79327416609af08178ad73b352877e51450790b3 # v6.8
+        with:
+          manifest-path: apps/io.github.Cyan4973.xxHash/io.github.Cyan4973.xxHash.yml
+          repo-dir: public/repo
+          build-bundle: false
+          upload-artifact: false
+          arch: x86_64
+          state-dir: .flatpak-builder-state/io.github.Cyan4973.xxHash
+          build-dir: .flatpak-builder-build/io.github.Cyan4973.xxHash
+
+      - name: Import GPG signing key
+        env:
+          GPG_PRIVATE_KEY_B64: ${{ secrets.GPG_PRIVATE_KEY }}
+        run: |
+          echo "$GPG_PRIVATE_KEY_B64" | base64 -d | gpg --batch --import
+
+      - name: Update and sign repo
+        env:
+          GPG_KEY_ID: ${{ secrets.GPG_KEY_ID }}
+        run: |
+          flatpak build-update-repo --generate-static-deltas --gpg-sign="$GPG_KEY_ID" public/repo
+
+      - name: Generate .flatpakrepo and index.html
+        env:
+          GPG_KEY_ID: ${{ secrets.GPG_KEY_ID }}
+          REPOSITORY: ${{ github.repository }}
+        run: |
+          IFS='/' read -r OWNER REPO_NAME <<< "$REPOSITORY"
+          REPO_URL="https://${OWNER}.github.io/${REPO_NAME}"
+          PUBKEY_BASE64=$(gpg --export "$GPG_KEY_ID" | base64 --wrap=0)
+          {
+          echo "[Flatpak Repo]"
+          echo "Title=${REPO_NAME}"
+          echo "Url=${REPO_URL}/repo"
+          echo "Homepage=${REPO_URL}"
+          echo "Comment=Flatpak apps built from ${REPOSITORY}"
+          echo "Description=Flatpak apps built and published from ${REPOSITORY}"
+          echo "GPGKey=${PUBKEY_BASE64}"
+          } > public/index.flatpakrepo
+          {
+          echo "<!doctype html><html><head><meta charset=\"utf-8\"><title>${REPO_NAME}</title></head><body>"
+          echo "<h1>${REPO_NAME} Flatpak Repository</h1>"
+          echo "<p>Add this remote:</p>"
+          echo "<pre>flatpak remote-add --if-not-exists ${REPO_NAME} ${REPO_URL}/index.flatpakrepo</pre>"
+          echo "</body></html>"
+          } > public/index.html
+          # GitHub Pages runs Jekyll by default, which excludes files/dirs starting
+          # with "_" or ".". OSTree static-delta paths are base64 checksums with "/"
+          # rewritten to "_", so some legitimately start with "_" and would otherwise
+          # be silently dropped, breaking delta downloads.
+          touch public/.nojekyll
+
+      - name: Publish to gh-pages
+        working-directory: public
+        run: |
+          git init -q -b gh-pages-publish
+          git add -A
+          git -c user.name="github-actions[bot]" -c user.email="41898282+github-actions[bot]@users.noreply.github.com" commit -q -m "Publish Flatpak repository"
+          git push -f "https://x-access-token:${{ secrets.GITHUB_TOKEN }}@github.com/${{ github.repository }}.git" gh-pages-publish:gh-pages

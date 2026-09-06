@@ -7,6 +7,7 @@ devcontainer-lock.json
 *.local.json
 *.local.md
 *.local.sh
+secrets.local/
 
 # claude files
 .claude/
