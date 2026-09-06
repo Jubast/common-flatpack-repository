@@ -32,6 +32,17 @@ The example manifest at `apps/io.github.Cyan4973.xxHash/io.github.Cyan4973.xxHas
 is a minimal reference: a CLI tool, no GUI toolkit, built against
 `org.freedesktop.Platform`/`org.freedesktop.Sdk` only.
 
+For a more involved case — a proprietary GUI app with no buildable source,
+packaged from an upstream prebuilt binary — see
+`apps/com.stablyai.orca/com.stablyai.orca.yml`. It fetches a `.deb` release
+asset via Flatpak's `extra-data` mechanism, builds on
+`org.electronjs.Electron2.BaseApp`, and includes a `--talk-name=org.freedesktop.Flatpak`
+grant so the sandboxed app can shell out to host-installed CLIs — a
+deliberate, broader permission that's worth reviewing before copying the
+pattern elsewhere. Each app added under `apps/` also needs its own build
+step added to `.github/workflows/build-and-publish.yml`, following the
+existing per-app steps there.
+
 ## One-time repository setup (owner)
 
 These steps are done once by whoever owns this GitHub repository — they
