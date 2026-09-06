@@ -1,0 +1,16 @@
+{
+  "name": "common-flatpack-repository",
+  "image": "mcr.microsoft.com/devcontainers/base:ubuntu-24.04",
+  "features": {
+    "ghcr.io/devcontainers/features/common-utils:2": {
+      "installZsh": false,
+      "installOhMyZsh": false,
+      "upgradePackages": true
+    },
+    "ghcr.io/devcontainers/features/node:2": {}
+  },
+  "postCreateCommand": "bash scripts/setup.sh",
+  "customizations": {
+    "vscode": { }
+  }
+}

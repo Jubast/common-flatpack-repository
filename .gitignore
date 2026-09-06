@@ -1,0 +1,20 @@
+# devcontainers
+devcontainer-lock.json
+.devcontainer/local/
+
+# local files
+*.local
+*.local.json
+*.local.md
+*.local.sh
+
+# claude files
+.claude/
+CLAUDE.md
+
+# superpowers
+docs/superpowers/
+
+# build output
+dist/
+node_modules/
