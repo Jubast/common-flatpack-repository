@@ -37,6 +37,17 @@ jobs:
             git archive origin/gh-pages | tar -x -C public
           fi
 
+      - name: Import GPG signing key
+        env:
+          GPG_PRIVATE_KEY_B64: ${{ secrets.GPG_PRIVATE_KEY }}
+        run: |
+          echo "$GPG_PRIVATE_KEY_B64" | base64 -d | gpg --batch --import
+
+      # gpg-sign must be passed here (not just in "Update and sign repo" below):
+      # flatpak-builder's export step is what signs each app's OSTree commit.
+      # build-update-repo's --gpg-sign only signs the summary, so without this
+      # the summary is signed but every commit is not, and `flatpak install`
+      # fails GPG verification on the commit ("no signatures found").
       - name: Build io.github.Cyan4973.xxHash
         uses: flatpak/flatpak-github-actions/flatpak-builder@79327416609af08178ad73b352877e51450790b3 # v6.8
         with:
@@ -47,6 +58,7 @@ jobs:
           arch: x86_64
           state-dir: .flatpak-builder-state/io.github.Cyan4973.xxHash
           build-dir: .flatpak-builder-build/io.github.Cyan4973.xxHash
+          gpg-sign: ${{ secrets.GPG_KEY_ID }}
 
       - name: Build com.stablyai.orca
         uses: flatpak/flatpak-github-actions/flatpak-builder@79327416609af08178ad73b352877e51450790b3 # v6.8
@@ -58,12 +70,7 @@ jobs:
           arch: x86_64
           state-dir: .flatpak-builder-state/com.stablyai.orca
           build-dir: .flatpak-builder-build/com.stablyai.orca
-
-      - name: Import GPG signing key
-        env:
-          GPG_PRIVATE_KEY_B64: ${{ secrets.GPG_PRIVATE_KEY }}
-        run: |
-          echo "$GPG_PRIVATE_KEY_B64" | base64 -d | gpg --batch --import
+          gpg-sign: ${{ secrets.GPG_KEY_ID }}
 
       - name: Update and sign repo
         env:
