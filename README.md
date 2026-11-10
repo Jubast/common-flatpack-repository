@@ -24,7 +24,9 @@ needed.
 
 1. Create `apps/<app-id>/<app-id>.yml` — a standard flatpak-builder manifest.
    Its `sources` should point at the app's own git repository (pinned to a
-   tag or commit), not vendor the app's source into this repo.
+   tag or commit), or at a sha256-pinned upstream release artifact when the
+   app is redistributable as a prebuilt binary. Don't vendor the app's source
+   into this repo.
 2. Open a pull request. Once merged to `main`, the next CI run rebuilds and
    republishes the full repository, including the new app.
 
@@ -39,7 +41,15 @@ asset via Flatpak's `extra-data` mechanism, builds on
 `org.electronjs.Electron2.BaseApp`, and includes a `--talk-name=org.freedesktop.Flatpak`
 grant so the sandboxed app can shell out to host-installed CLIs — a
 deliberate, broader permission that's worth reviewing before copying the
-pattern elsewhere. Each app added under `apps/` also needs its own build
+pattern elsewhere.
+
+`apps/dev.herdr.app/dev.herdr.app.yml` is the opposite case: a fully sandboxed
+app installed from pinned upstream tarballs, with no host access. Its file
+panel and git info need opt-in home access
+(`flatpak override --user --filesystem=home dev.herdr.app`, or
+`--filesystem=host` for more).
+
+Each app added under `apps/` also needs its own build
 step added to `.github/workflows/build-and-publish.yml`, following the
 existing per-app steps there.
 

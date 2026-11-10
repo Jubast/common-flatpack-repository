@@ -72,6 +72,18 @@ jobs:
           build-dir: .flatpak-builder-build/com.stablyai.orca
           gpg-sign: ${{ secrets.GPG_KEY_ID }}
 
+      - name: Build dev.herdr.app
+        uses: flatpak/flatpak-github-actions/flatpak-builder@79327416609af08178ad73b352877e51450790b3 # v6.8
+        with:
+          manifest-path: apps/dev.herdr.app/dev.herdr.app.yml
+          repo-dir: public/repo
+          build-bundle: false
+          upload-artifact: false
+          arch: x86_64
+          state-dir: .flatpak-builder-state/dev.herdr.app
+          build-dir: .flatpak-builder-build/dev.herdr.app
+          gpg-sign: ${{ secrets.GPG_KEY_ID }}
+
       - name: Update and sign repo
         env:
           GPG_KEY_ID: ${{ secrets.GPG_KEY_ID }}
