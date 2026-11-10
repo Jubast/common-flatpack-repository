@@ -1,6 +1,6 @@
 [Desktop Entry]
 Name=Herdr
-Comment=Terminals and coding agents that keep running
+Comment=Terminals and coding agents in one window
 Exec=herdr-app
 Terminal=false
 Type=Application
