@@ -51,8 +51,8 @@ modules:
     build-commands:
       - install -Dm755 apply_extra.sh /app/bin/apply_extra
       - install -Dm755 orca-wrapper /app/bin/orca
-      - install -Dm755 orca-host-shim /app/lib/orca/orca-host-shim
-      - install -Dm755 orca-setup-host-bin /app/lib/orca/orca-setup-host-bin
+      - install -Dm755 host-shim /app/lib/host-bridge/host-shim
+      - install -Dm755 setup-host-bin /app/lib/host-bridge/setup-host-bin
       - install -Dm644 com.stablyai.orca.desktop /app/share/applications/com.stablyai.orca.desktop
       - install -Dm644 com.stablyai.orca.metainfo.xml /app/share/metainfo/com.stablyai.orca.metainfo.xml
       - install -Dm644 com.stablyai.orca.png /app/share/icons/hicolor/512x512/apps/com.stablyai.orca.png
@@ -69,9 +69,9 @@ modules:
       - type: file
         path: orca-wrapper
       - type: file
-        path: orca-host-shim
+        path: ../../shared/host-bridge/host-shim
       - type: file
-        path: orca-setup-host-bin
+        path: ../../shared/host-bridge/setup-host-bin
       - type: file
         path: com.stablyai.orca.desktop
       - type: file
