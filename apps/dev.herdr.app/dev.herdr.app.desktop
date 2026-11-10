@@ -1,0 +1,10 @@
+[Desktop Entry]
+Name=Herdr
+Comment=Terminals and coding agents that keep running
+Exec=herdr-app
+Terminal=false
+Type=Application
+Icon=dev.herdr.app
+StartupWMClass=dev.herdr.app
+Categories=Development;TerminalEmulator;
+Keywords=terminal;agent;AI;ssh;

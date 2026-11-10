@@ -1,0 +1,48 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<component type="desktop-application">
+  <id>dev.herdr.app</id>
+  <name>Herdr</name>
+  <summary>Terminals and coding agents that keep running</summary>
+  <metadata_license>CC0-1.0</metadata_license>
+  <project_license>Apache-2.0</project_license>
+  <developer id="dev.herdr">
+    <name>herdrdev</name>
+  </developer>
+  <url type="homepage">https://herdr.dev</url>
+  <url type="bugtracker">https://github.com/herdrdev/herdr-app/issues</url>
+  <url type="vcs-browser">https://github.com/herdrdev/herdr-app</url>
+  <description>
+    <p>This is a community package of Herdr, maintained independently. It repackages the official upstream Linux build unmodified.</p>
+    <p>Herdr is a desktop window for terminals and coding agents. The terminals run in a separate herdr-core daemon, so closing the window leaves them running.</p>
+    <p>Install herdr-core on the host first: <code>curl -fsSL https://releases.herdr.dev/core/install.sh | sh</code></p>
+    <p>Permissions: by default this package grants display, network, notifications, secret storage, audio, and a host command bridge. herdr-core and every command Herdr runs are forwarded through Flatpak's host-spawn portal and run on the host, so this package is not a sandbox. Agents on the host that call <code>herdr-app</code> need a host shim such as <code>~/.local/bin/herdr-app</code> containing <code>exec flatpak run dev.herdr.app "$@"</code>.</p>
+    <p>Usage telemetry is on by default, as upstream ships it. Turn it off in Settings, Privacy.</p>
+    <p>The file panel and git info read the folders your terminals are in, which needs access to your files. It is not granted by default; enable it with "flatpak override":</p>
+    <ul>
+      <li>Home directory: <code>flatpak override --user --filesystem=home dev.herdr.app</code></li>
+      <li>Whole filesystem: <code>flatpak override --user --filesystem=host dev.herdr.app</code></li>
+    </ul>
+  </description>
+  <launchable type="desktop-id">dev.herdr.app.desktop</launchable>
+  <categories>
+    <category>Development</category>
+    <category>TerminalEmulator</category>
+  </categories>
+  <keywords>
+    <keyword>terminal</keyword>
+    <keyword>agent</keyword>
+    <keyword>AI</keyword>
+    <keyword>ssh</keyword>
+  </keywords>
+  <recommends>
+    <control>keyboard</control>
+    <control>pointing</control>
+  </recommends>
+  <content_rating type="oars-1.1" />
+  <provides>
+    <binary>herdr-app</binary>
+  </provides>
+  <releases>
+    <release version="0.1.14" date="2026-11-08" />
+  </releases>
+</component>
