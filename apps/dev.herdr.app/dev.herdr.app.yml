@@ -15,27 +15,28 @@ finish-args:
   - --socket=pulseaudio
   - --talk-name=org.freedesktop.Notifications
   - --talk-name=org.freedesktop.secrets
-  # Config and control socket shared with host-side `herdr-app` callers.
-  - --filesystem=xdg-config/herdr-app:create
-  # herdr-core runs the terminals on the host; every host command goes through flatpak-spawn --host.
-  - --talk-name=org.freedesktop.Flatpak
   - --env=HERDR_APP_ID=dev.herdr.app
-  # Only the bridged core counts, never a host binary run inside the sandbox.
-  - --env=HERDR_CORE_DIRS=/app/lib/herdr-app/core
 modules:
+  - name: herdr-core
+    buildsystem: simple
+    build-commands:
+      - install -Dm755 herdr-core /app/bin/herdr-core
+      - ln -s herdr-core /app/bin/hc
+      - install -Dm644 -t /app/share/licenses/dev.herdr.app/herdr-core LICENSE THIRD-PARTY-NOTICES
+    sources:
+      - type: archive
+        only-arches: [x86_64]
+        strip-components: 0
+        url: https://releases.herdr.dev/core/0.1.20/herdr-core-linux-x86_64.tar.gz
+        sha256: ac6b86890c451a37584620aaa438b71bc0d0bd430a2e7c1d7e095f052c414e74
+
   - name: herdr-app
     buildsystem: simple
     build-commands:
-      # herdr-app.svg stays out of /app/lib/herdr-app: next to the binary it enables upstream's self-updater.
-      - install -Dm755 herdr-app /app/lib/herdr-app/herdr-app
-      - install -Dm644 -t /app/share/licenses/dev.herdr.app LICENSE THIRD-PARTY-NOTICES
+      # herdr-app.svg stays out of /app/bin: next to the binary it enables upstream's self-updater.
+      - install -Dm755 herdr-app /app/bin/herdr-app
+      - install -Dm644 -t /app/share/licenses/dev.herdr.app/herdr-app LICENSE THIRD-PARTY-NOTICES
       - install -Dm644 herdr-app.svg /app/share/icons/hicolor/scalable/apps/dev.herdr.app.svg
-      - install -Dm755 herdr-wrapper /app/bin/herdr-app
-      - install -Dm755 host-shim /app/lib/host-bridge/host-shim
-      - install -Dm755 setup-host-bin /app/lib/host-bridge/setup-host-bin
-      - mkdir -p /app/lib/herdr-app/core
-      - ln -s /app/lib/host-bridge/host-shim /app/lib/herdr-app/core/herdr-core
-      - ln -s /app/lib/host-bridge/host-shim /app/lib/herdr-app/core/hc
       - install -Dm644 dev.herdr.app.desktop /app/share/applications/dev.herdr.app.desktop
       - install -Dm644 dev.herdr.app.metainfo.xml /app/share/metainfo/dev.herdr.app.metainfo.xml
     sources:
@@ -43,12 +44,6 @@ modules:
         only-arches: [x86_64]
         url: https://releases.herdr.dev/app/0.1.14/herdr-app-linux-x86_64.tar.gz
         sha256: 475a383f8f439e3191a86635b5c1286ce4dfd2d9fcdf1e7cbdfdd6c7176f8ff3
-      - type: file
-        path: herdr-wrapper
-      - type: file
-        path: ../../shared/host-bridge/host-shim
-      - type: file
-        path: ../../shared/host-bridge/setup-host-bin
       - type: file
         path: dev.herdr.app.desktop
       - type: file
