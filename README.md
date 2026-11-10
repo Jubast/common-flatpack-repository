@@ -41,9 +41,9 @@ asset via Flatpak's `extra-data` mechanism, builds on
 `org.electronjs.Electron2.BaseApp`, and includes a `--talk-name=org.freedesktop.Flatpak`
 grant so the sandboxed app can shell out to host-installed CLIs — a
 deliberate, broader permission that's worth reviewing before copying the
-pattern elsewhere. The forwarding scripts live in `shared/host-bridge/` and are
-reused by `apps/dev.herdr.app/dev.herdr.app.yml`, which installs a pinned
-upstream tarball directly; its file panel and git info need opt-in home access
+pattern elsewhere. `apps/dev.herdr.app/dev.herdr.app.yml` is the opposite case: a fully sandboxed
+app installed from pinned upstream tarballs, with no host access. Its file
+panel and git info need opt-in home access
 (`flatpak override --user --filesystem=home dev.herdr.app`, or `--filesystem=host`
 for more). Each app added under `apps/` also needs its own build
 step added to `.github/workflows/build-and-publish.yml`, following the
