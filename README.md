@@ -43,7 +43,9 @@ grant so the sandboxed app can shell out to host-installed CLIs — a
 deliberate, broader permission that's worth reviewing before copying the
 pattern elsewhere. The forwarding scripts live in `shared/host-bridge/` and are
 reused by `apps/dev.herdr.app/dev.herdr.app.yml`, which installs a pinned
-upstream tarball directly. Each app added under `apps/` also needs its own build
+upstream tarball directly; its file panel and git info need opt-in home access
+(`flatpak override --user --filesystem=home dev.herdr.app`, or `--filesystem=host`
+for more). Each app added under `apps/` also needs its own build
 step added to `.github/workflows/build-and-publish.yml`, following the
 existing per-app steps there.
 

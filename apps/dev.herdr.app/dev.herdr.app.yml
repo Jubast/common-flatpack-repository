@@ -22,8 +22,6 @@ finish-args:
   - --env=HERDR_APP_ID=dev.herdr.app
   # Only the bridged core counts, never a host binary run inside the sandbox.
   - --env=HERDR_CORE_DIRS=/app/lib/herdr-app/core
-  # Deliberately NOT granted by default (documented as opt-in in metainfo):
-  #   --filesystem=home -> file panel and git info for terminal folders
 modules:
   - name: herdr-app
     buildsystem: simple
