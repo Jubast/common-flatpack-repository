@@ -43,6 +43,7 @@
     <binary>herdr-app</binary>
   </provides>
   <releases>
+    <release version="0.1.16" date="2026-11-15" />
     <release version="0.1.14" date="2026-11-08" />
   </releases>
 </component>

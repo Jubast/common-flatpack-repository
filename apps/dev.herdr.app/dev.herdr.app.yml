@@ -30,8 +30,8 @@ modules:
       - type: archive
         only-arches: [x86_64]
         strip-components: 0
-        url: https://releases.herdr.dev/core/0.1.20/herdr-core-linux-x86_64.tar.gz
-        sha256: ac6b86890c451a37584620aaa438b71bc0d0bd430a2e7c1d7e095f052c414e74
+        url: https://releases.herdr.dev/core/0.1.21/herdr-core-linux-x86_64.tar.gz
+        sha256: 78424755c10a40dde38a0bdb55c20ac19706e9ae05ed68fc2acf1fcff0d941c1
 
   - name: git
     buildsystem: simple
@@ -57,8 +57,8 @@ modules:
     sources:
       - type: archive
         only-arches: [x86_64]
-        url: https://releases.herdr.dev/app/0.1.14/herdr-app-linux-x86_64.tar.gz
-        sha256: 475a383f8f439e3191a86635b5c1286ce4dfd2d9fcdf1e7cbdfdd6c7176f8ff3
+        url: https://releases.herdr.dev/app/0.1.16/herdr-app-linux-x86_64.tar.gz
+        sha256: 282d2632196b238206cfe66bfb61c0faf299ca1c91843bd076521bbe36571216
       - type: file
         path: dev.herdr.app.desktop
       - type: file
