@@ -16,6 +16,11 @@ finish-args:
   - --talk-name=org.freedesktop.Notifications
   - --talk-name=org.freedesktop.secrets
   - --env=HERDR_APP_ID=dev.herdr.app
+  - --env=SHELL=/usr/bin/bash
+  - --env=HISTFILE=/var/data/bash_history
+  - --env=PATH=/app/bin:/usr/bin:/var/data/bin
+  - --env=CLAUDE_CONFIG_DIR=/var/config/claude
+  - --persist=.local
 modules:
   - name: herdr-core
     buildsystem: simple
