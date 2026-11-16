@@ -46,8 +46,7 @@ pattern elsewhere.
 `apps/dev.herdr.app/dev.herdr.app.yml` is the opposite case: a fully sandboxed
 app installed from pinned upstream tarballs, with no host access. Its panes
 run bash and persist `~/.local` (Claude Code install steps are in its
-metainfo). Its file
-panel and git info need opt-in home access
+metainfo). Its file panel and git info need opt-in home access
 (`flatpak override --user --filesystem=home dev.herdr.app`, or
 `--filesystem=host` for more).
 

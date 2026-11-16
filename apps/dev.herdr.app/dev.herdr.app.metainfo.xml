@@ -15,7 +15,7 @@
     <p>This is a community package of Herdr, maintained independently. It repackages the official upstream Linux build unmodified.</p>
     <p>Herdr is a desktop window for terminals and coding agents. This package bundles herdr-core, which runs the terminals, so everything runs inside the Flatpak sandbox with no access to host commands. Terminals only see what the sandbox allows and may end when Herdr exits.</p>
     <p>Usage telemetry is on by default, as upstream ships it. Turn it off in Settings, Privacy.</p>
-    <p>Terminals run bash, with history kept between sessions. <code>~/.local</code> is persisted. To install Claude Code, run the native installer once in a terminal, then link it onto the PATH:</p>
+    <p>Terminals run bash, with history kept between sessions. <code>~/.local</code> is persisted, unless you grant home access below, which makes it your real home directory. To install Claude Code, run the native installer once in a terminal, then link it onto the PATH:</p>
     <ul>
       <li><code>curl -fsSL https://claude.ai/install.sh | bash</code></li>
       <li><code>mkdir -p /var/data/bin &amp;&amp; ln -sf ~/.local/bin/claude /var/data/bin/claude</code></li>
