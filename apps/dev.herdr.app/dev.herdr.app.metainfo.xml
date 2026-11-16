@@ -12,7 +12,7 @@
   <url type="bugtracker">https://github.com/herdrdev/herdr-app/issues</url>
   <url type="vcs-browser">https://github.com/herdrdev/herdr-app</url>
   <description>
-    <p>This is a community package of Herdr, maintained independently. It repackages the official upstream Linux build unmodified.</p>
+    <p>This is a community package of Herdr, maintained independently. It repackages the official upstream Linux build unmodified and adds git, used by the git panel.</p>
     <p>Herdr is a desktop window for terminals and coding agents. This package bundles herdr-core, which runs the terminals, so everything runs inside the Flatpak sandbox with no access to host commands. Terminals only see what the sandbox allows and may end when Herdr exits.</p>
     <p>Usage telemetry is on by default, as upstream ships it. Turn it off in Settings, Privacy.</p>
     <p>Terminals run bash, with history kept between sessions. <code>~/.local</code> is persisted, unless you grant home access below, which makes it your real home directory. To install Claude Code, run the native installer once in a terminal, then link it onto the PATH:</p>
