@@ -16,6 +16,9 @@ finish-args:
   - --talk-name=org.freedesktop.Notifications
   - --talk-name=org.freedesktop.secrets
   - --env=HERDR_APP_ID=dev.herdr.app
+  - --env=SHELL=/usr/bin/bash
+  - --env=HISTFILE=/var/data/bash_history
+  - --persist=.local
 modules:
   - name: herdr-core
     buildsystem: simple
@@ -29,6 +32,18 @@ modules:
         strip-components: 0
         url: https://releases.herdr.dev/core/0.1.20/herdr-core-linux-x86_64.tar.gz
         sha256: ac6b86890c451a37584620aaa438b71bc0d0bd430a2e7c1d7e095f052c414e74
+
+  - name: git
+    buildsystem: simple
+    build-commands:
+      - make -j$FLATPAK_BUILDER_N_JOBS prefix=/app NO_TCLTK=1
+        NO_GETTEXT=1 NO_PERL=1 NO_PYTHON=1 all
+      - make prefix=/app NO_TCLTK=1
+        NO_GETTEXT=1 NO_PERL=1 NO_PYTHON=1 install
+    sources:
+      - type: archive
+        url: https://mirrors.edge.kernel.org/pub/software/scm/git/git-2.56.1.tar.xz
+        sha256: f0b0bf89264b9bd2e1c640363e7529643989da76281600473c50745cd34a607f
 
   - name: herdr-app
     buildsystem: simple
