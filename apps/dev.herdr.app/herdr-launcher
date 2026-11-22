@@ -1,0 +1,13 @@
+#!/bin/sh
+set -eu
+
+# Keeps Claude's ~/.claude.json inside the persisted ~/.claude.
+export CLAUDE_CONFIG_DIR="$HOME/.claude"
+
+# Installs the bundled skills once, so user edits are kept.
+mkdir -p "$CLAUDE_CONFIG_DIR/skills"
+for skill in /app/share/herdr/skills/*; do
+  [ -e "$CLAUDE_CONFIG_DIR/skills/${skill##*/}" ] || cp -r "$skill" "$CLAUDE_CONFIG_DIR/skills/"
+done
+
+exec herdr-app "$@"
