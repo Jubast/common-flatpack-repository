@@ -2,7 +2,7 @@ app-id: dev.herdr.app
 runtime: org.freedesktop.Platform
 runtime-version: "25.08"
 sdk: org.freedesktop.Sdk
-command: herdr-app
+command: herdr-launcher
 separate-locales: false
 build-options:
   no-debuginfo: true
@@ -19,6 +19,10 @@ finish-args:
   - --env=SHELL=/usr/bin/bash
   - --env=HISTFILE=/var/data/bash_history
   - --persist=.local
+  # Claude Code settings, login and skills; the claude wrapper points CLAUDE_CONFIG_DIR here.
+  - --persist=.claude
+  # /app is read-only; Claude updates with this package.
+  - --env=DISABLE_AUTOUPDATER=1
 modules:
   - name: herdr-core
     buildsystem: simple
@@ -45,11 +49,32 @@ modules:
         url: https://mirrors.edge.kernel.org/pub/software/scm/git/git-2.56.1.tar.xz
         sha256: f0b0bf89264b9bd2e1c640363e7529643989da76281600473c50745cd34a607f
 
+  - name: claude
+    buildsystem: simple
+    build-commands:
+      - install -Dm755 apply_extra.sh /app/bin/apply_extra
+      - install -Dm755 claude-wrapper /app/bin/claude
+    sources:
+      # Downloaded from Anthropic at install time rather than redistributed.
+      - type: extra-data
+        filename: claude
+        only-arches: [x86_64]
+        url: https://downloads.claude.ai/claude-code-releases/2.1.330/linux-x64/claude
+        sha256: f390eaa0814e6a1bff74cbb47acb74cb9c89d30ced809fe0af5af00c7bfe8ebb
+        size: 381121040
+      - type: file
+        path: apply_extra.sh
+      - type: file
+        path: claude-wrapper
+
   - name: herdr-app
     buildsystem: simple
     build-commands:
       # herdr-app.svg stays out of /app/bin: next to the binary it enables upstream's self-updater.
       - install -Dm755 herdr-app /app/bin/herdr-app
+      - install -Dm755 herdr-launcher /app/bin/herdr-launcher
+      - install -Dm644 -t /app/share/herdr/skills/herdr-app skills/herdr-app/SKILL.md
+      - install -Dm644 -t /app/share/herdr/skills/herdr-core skills/herdr-core/SKILL.md
       - install -Dm644 -t /app/share/licenses/dev.herdr.app/herdr-app LICENSE THIRD-PARTY-NOTICES
       - install -Dm644 herdr-app.svg /app/share/icons/hicolor/scalable/apps/dev.herdr.app.svg
       - install -Dm644 dev.herdr.app.desktop /app/share/applications/dev.herdr.app.desktop
@@ -59,6 +84,11 @@ modules:
         only-arches: [x86_64]
         url: https://releases.herdr.dev/app/0.1.16/herdr-app-linux-x86_64.tar.gz
         sha256: 282d2632196b238206cfe66bfb61c0faf299ca1c91843bd076521bbe36571216
+      - type: file
+        path: herdr-launcher
+      - type: dir
+        path: skills
+        dest: skills
       - type: file
         path: dev.herdr.app.desktop
       - type: file

@@ -1,7 +1,7 @@
 [Desktop Entry]
 Name=Herdr
 Comment=Terminals and coding agents in one window
-Exec=herdr-app
+Exec=herdr-launcher
 Terminal=false
 Type=Application
 Icon=dev.herdr.app

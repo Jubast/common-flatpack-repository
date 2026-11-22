@@ -1,0 +1,11 @@
+#!/bin/sh
+set -eu
+
+# Installs the bundled skills once, so user edits are kept.
+skills="$HOME/.claude/skills"
+mkdir -p "$skills"
+for skill in /app/share/herdr/skills/*; do
+  [ -e "$skills/${skill##*/}" ] || cp -r "$skill" "$skills/"
+done
+
+exec herdr-app "$@"

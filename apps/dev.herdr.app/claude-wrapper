@@ -1,0 +1,4 @@
+#!/bin/sh
+# Keeps Claude's ~/.claude.json inside the persisted ~/.claude.
+export CLAUDE_CONFIG_DIR="$HOME/.claude"
+exec /app/extra/claude "$@"
