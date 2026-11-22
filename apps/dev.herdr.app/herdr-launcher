@@ -8,4 +8,13 @@ for skill in /app/share/herdr/skills/*; do
   [ -e "$skills/${skill##*/}" ] || cp -r "$skill" "$skills/"
 done
 
+# Links ~/.config/<app> to the persisted $XDG_CONFIG_HOME/<app>, where docs and skills
+# point; the sandbox home outside ~/.var is reset each start.
+mkdir -p "$HOME/.config"
+for app in herdr-app herdr-core; do
+  mkdir -p "$XDG_CONFIG_HOME/$app"
+  link="$HOME/.config/$app"
+  [ -e "$link" ] || [ -L "$link" ] || ln -s "$XDG_CONFIG_HOME/$app" "$link"
+done
+
 exec herdr-app "$@"
