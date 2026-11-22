@@ -47,8 +47,7 @@ pattern elsewhere.
 app installed from pinned upstream tarballs, with no host access. Its panes
 run bash and persist `~/.local` (rcfile setup is in its metainfo). It also ships
 Claude Code as `extra-data` with `~/.claude` persisted, and the herdr-app and
-herdr-core skills. Its
-file panel and git info need opt-in home access
+herdr-core skills. Its file panel and git info need opt-in home access
 (`flatpak override --user --filesystem=home dev.herdr.app`, or
 `--filesystem=host` for more).
 

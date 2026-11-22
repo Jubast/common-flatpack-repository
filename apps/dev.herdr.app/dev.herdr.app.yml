@@ -19,7 +19,7 @@ finish-args:
   - --env=SHELL=/usr/bin/bash
   - --env=HISTFILE=/var/data/bash_history
   - --persist=.local
-  # Claude Code settings, login and skills; herdr-launcher points CLAUDE_CONFIG_DIR here.
+  # Claude Code settings, login and skills; the claude wrapper points CLAUDE_CONFIG_DIR here.
   - --persist=.claude
   # /app is read-only; Claude updates with this package.
   - --env=DISABLE_AUTOUPDATER=1
@@ -53,7 +53,7 @@ modules:
     buildsystem: simple
     build-commands:
       - install -Dm755 apply_extra.sh /app/bin/apply_extra
-      - ln -s /app/extra/claude /app/bin/claude
+      - install -Dm755 claude-wrapper /app/bin/claude
     sources:
       # Downloaded from Anthropic at install time rather than redistributed.
       - type: extra-data
@@ -64,6 +64,8 @@ modules:
         size: 381121040
       - type: file
         path: apply_extra.sh
+      - type: file
+        path: claude-wrapper
 
   - name: herdr-app
     buildsystem: simple
