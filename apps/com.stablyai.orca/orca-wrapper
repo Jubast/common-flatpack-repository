@@ -8,6 +8,13 @@ set -eu
 # through flatpak-spawn --host.
 
 unset ELECTRON_RUN_AS_NODE
+
+# Links ~/.config/orca to the persisted $XDG_CONFIG_HOME/orca, where docs and skills
+# point; the sandbox home outside ~/.var is reset each start.
+mkdir -p "$HOME/.config" "$XDG_CONFIG_HOME/orca"
+link="$HOME/.config/orca"
+[ -e "$link" ] || [ -L "$link" ] || ln -s "$XDG_CONFIG_HOME/orca" "$link"
+
 host_bin="$(/app/lib/orca/orca-setup-host-bin || true)"
 if [ -n "$host_bin" ] && [ -d "$host_bin" ]; then
   export PATH="/app/bin:$PATH:$host_bin"

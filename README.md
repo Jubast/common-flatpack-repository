@@ -41,7 +41,9 @@ asset via Flatpak's `extra-data` mechanism, builds on
 `org.electronjs.Electron2.BaseApp`, and includes a `--talk-name=org.freedesktop.Flatpak`
 grant so the sandboxed app can shell out to host-installed CLIs — a
 deliberate, broader permission that's worth reviewing before copying the
-pattern elsewhere.
+pattern elsewhere. Like Herdr below, it runs bash in its terminals,
+persists `~/.local` and `~/.claude`, and bundles git and Claude Code, which
+take precedence over the host CLIs.
 
 `apps/dev.herdr.app/dev.herdr.app.yml` is the opposite case: a fully sandboxed
 app installed from pinned upstream tarballs, with no host access. Its panes
@@ -50,6 +52,9 @@ Claude Code as `extra-data` with `~/.claude` persisted, and the herdr-app and
 herdr-core skills. Its file panel and git info need opt-in home access
 (`flatpak override --user --filesystem=home dev.herdr.app`, or
 `--filesystem=host` for more).
+
+`apps/shared/` holds the git and Claude Code modules both apps include
+(`- ../shared/<module>.yml`).
 
 Each app added under `apps/` also needs its own build
 step added to `.github/workflows/build-and-publish.yml`, following the

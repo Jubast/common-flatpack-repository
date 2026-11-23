@@ -26,3 +26,6 @@ bsdtar -xOf orca.deb 'data.tar*' | bsdtar --no-same-owner -xf - -C stage
 mv stage/opt/Orca Orca
 rm -rf stage orca.deb
 [ -x Orca/orca-ide ] || { echo "Orca binary missing after stage" >&2; exit 1; }
+
+# extra-data arrives without the executable bit.
+chmod 755 claude

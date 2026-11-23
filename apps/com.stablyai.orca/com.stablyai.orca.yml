@@ -34,18 +34,30 @@ finish-args:
   - --filesystem=~/.agents:create
   # Host command bridge: the wrapper generates a runtime PATH directory whose
   # commands forward through flatpak-spawn --host, so Orca can use the user's
-  # own installed and authorized Git, GitHub/GitLab, Node/npm/npx, and agent
-  # CLIs. This repo does not bundle or authenticate those tools; this
+  # own installed and authorized GitHub/GitLab, Node/npm/npx, and agent CLIs.
+  # The bundled git and claude come first on PATH and run in the sandbox. This
   # permission widens the sandbox and is called out here deliberately.
   - --talk-name=org.freedesktop.Flatpak
   # Strip a leaked ELECTRON_RUN_AS_NODE from the sandbox env so the GUI and
   # zypak child processes do not start as plain Node.
   - --unset-env=ELECTRON_RUN_AS_NODE
+  # Terminal panes run bash with persisted history and ~/.local.
+  - --env=SHELL=/usr/bin/bash
+  - --env=HISTFILE=/var/data/bash_history
+  - --persist=.local
+  # Claude Code settings, login and skills; the claude wrapper points CLAUDE_CONFIG_DIR here.
+  - --persist=.claude
+  # /app is read-only; Claude updates with this package.
+  - --env=DISABLE_AUTOUPDATER=1
   # Deliberately NOT granted by default (documented as opt-in in metainfo):
   #   --filesystem=home      -> open existing host worktrees/projects directly
   #   --filesystem=~/.ssh:ro -> let host agent/SSH flows reuse SSH config/keys
   #   --device=all           -> broad local device/computer-use access
 modules:
+  - ../shared/git.yml
+
+  - ../shared/claude.yml
+
   - name: orca
     buildsystem: simple
     build-commands:
