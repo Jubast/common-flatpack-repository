@@ -38,18 +38,20 @@ For a more involved case — a proprietary GUI app with no buildable source,
 packaged from an upstream prebuilt binary — see
 `apps/com.stablyai.orca/com.stablyai.orca.yml`. It fetches a `.deb` release
 asset via Flatpak's `extra-data` mechanism, builds on
-`org.electronjs.Electron2.BaseApp`, and includes a `--talk-name=org.freedesktop.Flatpak`
-grant so the sandboxed app can shell out to host-installed CLIs — a
-deliberate, broader permission that's worth reviewing before copying the
-pattern elsewhere.
+`org.electronjs.Electron2.BaseApp`, and is sandboxed like Herdr below: bash
+terminals, persisted `~/.local` and `~/.claude`, bundled git and Claude Code,
+and no host access.
 
-`apps/dev.herdr.app/dev.herdr.app.yml` is the opposite case: a fully sandboxed
+`apps/dev.herdr.app/dev.herdr.app.yml` is a fully sandboxed
 app installed from pinned upstream tarballs, with no host access. Its panes
 run bash and persist `~/.local` (rcfile setup is in its metainfo). It also ships
 Claude Code as `extra-data` with `~/.claude` persisted, and the herdr-app and
 herdr-core skills. Its file panel and git info need opt-in home access
 (`flatpak override --user --filesystem=home dev.herdr.app`, or
 `--filesystem=host` for more).
+
+`apps/shared/` holds the git and Claude Code modules both apps include
+(`- ../shared/<module>.yml`).
 
 Each app added under `apps/` also needs its own build
 step added to `.github/workflows/build-and-publish.yml`, following the

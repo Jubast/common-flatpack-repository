@@ -37,35 +37,9 @@ modules:
         url: https://releases.herdr.dev/core/0.1.21/herdr-core-linux-x86_64.tar.gz
         sha256: 78424755c10a40dde38a0bdb55c20ac19706e9ae05ed68fc2acf1fcff0d941c1
 
-  - name: git
-    buildsystem: simple
-    build-commands:
-      - make -j$FLATPAK_BUILDER_N_JOBS prefix=/app NO_TCLTK=1
-        NO_GETTEXT=1 NO_PERL=1 NO_PYTHON=1 NO_RUST=1 all
-      - make prefix=/app NO_TCLTK=1
-        NO_GETTEXT=1 NO_PERL=1 NO_PYTHON=1 NO_RUST=1 install
-    sources:
-      - type: archive
-        url: https://mirrors.edge.kernel.org/pub/software/scm/git/git-2.56.1.tar.xz
-        sha256: f0b0bf89264b9bd2e1c640363e7529643989da76281600473c50745cd34a607f
+  - ../shared/git.yml
 
-  - name: claude
-    buildsystem: simple
-    build-commands:
-      - install -Dm755 apply_extra.sh /app/bin/apply_extra
-      - install -Dm755 claude-wrapper /app/bin/claude
-    sources:
-      # Downloaded from Anthropic at install time rather than redistributed.
-      - type: extra-data
-        filename: claude
-        only-arches: [x86_64]
-        url: https://downloads.claude.ai/claude-code-releases/2.1.330/linux-x64/claude
-        sha256: f390eaa0814e6a1bff74cbb47acb74cb9c89d30ced809fe0af5af00c7bfe8ebb
-        size: 381121040
-      - type: file
-        path: apply_extra.sh
-      - type: file
-        path: claude-wrapper
+  - ../shared/claude.yml
 
   - name: herdr-app
     buildsystem: simple
@@ -73,6 +47,7 @@ modules:
       # herdr-app.svg stays out of /app/bin: next to the binary it enables upstream's self-updater.
       - install -Dm755 herdr-app /app/bin/herdr-app
       - install -Dm755 herdr-launcher /app/bin/herdr-launcher
+      - install -Dm755 apply_extra.sh /app/bin/apply_extra
       - install -Dm644 -t /app/share/herdr/skills/herdr-app skills/herdr-app/SKILL.md
       - install -Dm644 -t /app/share/herdr/skills/herdr-core skills/herdr-core/SKILL.md
       - install -Dm644 -t /app/share/licenses/dev.herdr.app/herdr-app LICENSE THIRD-PARTY-NOTICES
@@ -86,6 +61,8 @@ modules:
         sha256: 282d2632196b238206cfe66bfb61c0faf299ca1c91843bd076521bbe36571216
       - type: file
         path: herdr-launcher
+      - type: file
+        path: apply_extra.sh
       - type: dir
         path: skills
         dest: skills
