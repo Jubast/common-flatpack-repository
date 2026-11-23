@@ -1,0 +1,15 @@
+# Claude Code as `claude`. The including app's apply_extra must chmod 755 /app/extra/claude.
+name: claude
+buildsystem: simple
+build-commands:
+  - install -Dm755 claude-wrapper /app/bin/claude
+sources:
+  # Downloaded from Anthropic at install time rather than redistributed.
+  - type: extra-data
+    filename: claude
+    only-arches: [x86_64]
+    url: https://downloads.claude.ai/claude-code-releases/2.1.330/linux-x64/claude
+    sha256: f390eaa0814e6a1bff74cbb47acb74cb9c89d30ced809fe0af5af00c7bfe8ebb
+    size: 381121040
+  - type: file
+    path: claude-wrapper
