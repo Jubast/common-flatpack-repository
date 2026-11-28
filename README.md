@@ -1,95 +1,119 @@
 # Common Flatpak Repository
 
-A self-hosted Flatpak repository, similar in spirit to Flathub: application
-manifests live here, their source code lives in each app's own repository,
-and a GitHub Actions workflow builds and publishes a signed Flatpak repo to
-GitHub Pages on every change.
+A signed Flatpak repository for x86_64, built from the manifests in `apps/`
+and published to GitHub Pages.
 
-## Installing apps from this repository
+| App | App ID |
+|-----|--------|
+| Orca | `com.stablyai.orca` |
+| Herdr | `dev.herdr.app` |
+| xxHash (CLI example) | `io.github.Cyan4973.xxHash` |
 
-Add the remote (once per machine):
+## Quick start
 
-    flatpak remote-add --if-not-exists <repo> https://<owner>.github.io/<repo>/index.flatpakrepo
+The commands install system-wide. For a per-user install, add `--user` to
+every `flatpak` command, e.g. `flatpak remote-add --user ...`.
 
-Then install any app it publishes, for example the bundled `xxhsum` example:
+### Add the remote
 
-    flatpak install <repo> io.github.Cyan4973.xxHash
-    flatpak run io.github.Cyan4973.xxHash --help
+The apps use runtimes from Flathub, so add both remotes:
 
-The remote is GPG-signed; `flatpak remote-add` picks up the signing key
-automatically from the `.flatpakrepo` file, so no `--no-gpg-verify` flag is
-needed.
+```sh
+flatpak remote-add --if-not-exists flathub https://dl.flathub.org/repo/flathub.flatpakrepo
+flatpak remote-add --if-not-exists common-flatpak-repository https://jubast.github.io/common-flatpak-repository/index.flatpakrepo
+```
 
-## Adding a new app
+The `.flatpakrepo` file carries the signing key, so every download is
+verified; never use `--no-gpg-verify` or the bare `/repo` URL. Key
+fingerprint: `38967A136E8DAF9FBC6C19649831A0DBE305B746` (public key in
+`keys/repo-public.gpg.asc`).
 
-1. Create `apps/<app-id>/<app-id>.yml` — a standard flatpak-builder manifest.
-   Its `sources` should point at the app's own git repository (pinned to a
-   tag or commit), or at a sha256-pinned upstream release artifact when the
-   app is redistributable as a prebuilt binary. Don't vendor the app's source
-   into this repo.
-2. Open a pull request. Once merged to `main`, the next CI run rebuilds and
-   republishes the full repository, including the new app.
+### List the apps
 
-The example manifest at `apps/io.github.Cyan4973.xxHash/io.github.Cyan4973.xxHash.yml`
-is a minimal reference: a CLI tool, no GUI toolkit, built against
-`org.freedesktop.Platform`/`org.freedesktop.Sdk` only.
+```sh
+flatpak remote-ls --app common-flatpak-repository
+```
 
-For a more involved case — a proprietary GUI app with no buildable source,
-packaged from an upstream prebuilt binary — see
-`apps/com.stablyai.orca/com.stablyai.orca.yml`. It fetches a `.deb` release
-asset via Flatpak's `extra-data` mechanism, builds on
-`org.electronjs.Electron2.BaseApp`, and is sandboxed like Herdr below: bash
-terminals, persisted `~/.local` and `~/.claude`, bundled git and Claude Code,
-and no host access.
+### Install and run
 
-`apps/dev.herdr.app/dev.herdr.app.yml` is a fully sandboxed
-app installed from pinned upstream tarballs, with no host access. Its panes
-run bash and persist `~/.local` (rcfile setup is in its metainfo). It also ships
-Claude Code as `extra-data` with `~/.claude` persisted, and the herdr-app and
-herdr-core skills. Its file panel and git info need opt-in home access
-(`flatpak override --user --filesystem=home dev.herdr.app`, or
-`--filesystem=host` for more).
+```sh
+flatpak install common-flatpak-repository com.stablyai.orca
+flatpak run com.stablyai.orca
 
-`apps/shared/` holds the git and Claude Code modules both apps include
-(`- ../shared/<module>.yml`).
+flatpak install common-flatpak-repository dev.herdr.app
+flatpak run dev.herdr.app
 
-Each app added under `apps/` also needs its own build
-step added to `.github/workflows/build-and-publish.yml`, following the
-existing per-app steps there.
+flatpak install common-flatpak-repository io.github.Cyan4973.xxHash
+flatpak run io.github.Cyan4973.xxHash --help
+```
 
-## One-time repository setup (owner)
+Orca and Herdr get no access to your files by default. To let one open
+projects in your home directory:
 
-These steps are done once by whoever owns this GitHub repository — they
-can't be automated from a sandbox without GitHub credentials, which is why
-they're manual:
+```sh
+flatpak override --user --filesystem=home com.stablyai.orca
+flatpak override --user --filesystem=home dev.herdr.app
+```
 
-1. **Create the GitHub repository** (if it doesn't already exist) and push
-   `main` to it.
-2. **Add two repository secrets** under Settings → Secrets and variables →
-   Actions:
-   - `GPG_PRIVATE_KEY` — the contents of `secrets.local/gpg-private-key.b64`
-     (already base64-encoded; paste as-is).
-   - `GPG_KEY_ID` — `38967A136E8DAF9FBC6C19649831A0DBE305B746`
-3. **Enable GitHub Pages**: Settings → Pages → Source = "Deploy from a
-   branch", Branch = `gh-pages`, Folder = `/ (root)`. (The `gh-pages` branch
-   doesn't exist yet — it's created by the workflow's first successful run,
-   so this setting can be configured either before or after that first run.)
-4. **Trigger the first build**: push a change under `apps/` (or anything
-   that touches the workflow file), or run the workflow manually via the
-   Actions tab ("Run workflow"). Confirm it succeeds, then check that
-   `https://<owner>.github.io/<repo>/index.flatpakrepo` and
-   `https://<owner>.github.io/<repo>/repo/summary` both load.
-5. **Verify the signed install actually works** from a machine with
-   `flatpak` installed, using the commands under "Installing apps from this
-   repository" above — confirm the app installs and runs without needing
-   `--no-gpg-verify`.
+### Update
 
-## Repository signing key
+```sh
+flatpak update com.stablyai.orca   # one app
+flatpak update                     # all apps and runtimes
+```
 
-The repository is signed with a dedicated, passphrase-less GPG key
-generated for this purpose. Its public key is committed at
-`keys/repo-public.gpg.asc` for transparency; the private key lives only in
-the `GPG_PRIVATE_KEY` GitHub Actions secret. To rotate the key: generate a
-new keypair, replace both secrets, replace `keys/repo-public.gpg.asc`, and
-note that existing users will need to re-run `flatpak remote-add` to pick
-up the new key.
+### Refresh the remote
+
+Refresh the app list and descriptions shown in software centers:
+
+```sh
+flatpak update --appstream common-flatpak-repository
+```
+
+If the repository URL changes, point the remote at the new one:
+
+```sh
+flatpak remote-modify --url=https://jubast.github.io/common-flatpak-repository/repo common-flatpak-repository
+```
+
+### Uninstall
+
+```sh
+flatpak uninstall com.stablyai.orca                 # keep its data in ~/.var/app
+flatpak uninstall --delete-data com.stablyai.orca   # remove its data too
+flatpak uninstall --unused                          # remove runtimes no app needs
+flatpak remote-delete common-flatpak-repository
+```
+
+## Troubleshooting
+
+**`GPG verification enabled, but no summary found`**: the remote points at an
+old URL. `flatpak remotes -d` shows its name and URL. A remote named
+`common-flatpack-repository` needs:
+
+```sh
+flatpak remote-modify --url=https://jubast.github.io/common-flatpak-repository/repo common-flatpack-repository
+```
+
+**Install fails on a missing `org.freedesktop.Platform` runtime**: add the
+Flathub remote (see [Add the remote](#add-the-remote)).
+
+## Maintaining the repository
+
+On every push to `main` that touches `apps/` or the workflow,
+`.github/workflows/build-and-publish.yml` builds every app, signs the repo
+and publishes it to the `gh-pages` branch.
+
+**Add an app**: create `apps/<app-id>/<app-id>.yml`, a flatpak-builder
+manifest whose sources are pinned (a git tag or commit, or a sha256-pinned
+release artifact), and add a build step for it to the workflow. Modules
+shared by several apps live in `apps/shared/`. `io.github.Cyan4973.xxHash` is
+a minimal CLI example; `com.stablyai.orca` packages a prebuilt binary via
+`extra-data`.
+
+**Setup**: add the Actions secrets `GPG_PRIVATE_KEY` (base64 of the private
+key, `secrets.local/gpg-private-key.b64`) and `GPG_KEY_ID`
+(the key fingerprint), and serve GitHub Pages from the root of `gh-pages`.
+
+**Rotate the signing key**: replace both secrets and
+`keys/repo-public.gpg.asc`; users then remove and re-add the remote.
